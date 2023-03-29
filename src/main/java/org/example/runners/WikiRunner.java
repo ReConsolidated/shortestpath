@@ -36,9 +36,9 @@ public class WikiRunner implements AlgorithmRunner{
 
             openSet.remove(current);
             for (Connection connection : current.getConnectionsFrom()) {
-                if (connection.getDepartsAt().isLessThan(timeAtStop.getOrDefault(current, currentTime))) {
-                    continue;
-                }
+//                if (connection.getDepartsAt().isLessThan(timeAtStop.getOrDefault(current, currentTime))) {
+//                    continue;
+//                }
                 Stop neighbor = connection.getTo();
 
                 double gsc = gScore.getOrDefault(current, inf);
@@ -46,7 +46,8 @@ public class WikiRunner implements AlgorithmRunner{
                 if (gsc == inf) {
                     tentativeGScore = inf;
                 } else {
-                    double weight = connection.getWeight(currentTime);
+                    double weight = connection.getWeight(timeAtStop.getOrDefault(current, currentTime));
+
                     tentativeGScore = gsc
                             + weight;
                 }

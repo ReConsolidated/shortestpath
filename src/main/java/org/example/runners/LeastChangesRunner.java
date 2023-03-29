@@ -38,9 +38,6 @@ public class LeastChangesRunner implements AlgorithmRunner{
 
             openSet.remove(current);
             for (Connection connection : current.getConnectionsFrom()) {
-                if (connection.getDepartsAt().isLessThan(timeAtStop.getOrDefault(current, currentTime))) {
-                    continue;
-                }
                 Stop neighbor = connection.getTo();
 
                 double gsc = gScore.getOrDefault(current, inf);

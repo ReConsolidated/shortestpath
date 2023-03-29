@@ -19,7 +19,6 @@ public class Connection {
     }
 
     public Double getWeight(Time currentTime) {
-
         double e = currentTime.timeTo(arrivesAt);
         if (e < 0) {
             e += 60*60*24;

@@ -17,6 +17,7 @@ public class OptimisedWikiRunner implements AlgorithmRunner{
 
         double inf = Double.POSITIVE_INFINITY;
 
+
         Map<Stop, CameFrom> cameFrom = new HashMap<>();
 
         Map<Stop, Time> timeAtStop = new HashMap<>();
@@ -34,37 +35,33 @@ public class OptimisedWikiRunner implements AlgorithmRunner{
             }
 
             openSet.remove(current);
-            int startingHour = timeAtStop.getOrDefault(current, currentTime).getHours();
-            for (int i = startingHour; i<current.getByHourConnections().size(); i++) {
-                List<Connection> hourlyConnections = current.getByHourConnections().getOrDefault(i, List.of());
-                for (Connection connection : hourlyConnections) {
-                    if (connection.getDepartsAt().isLessThan(timeAtStop.getOrDefault(current, currentTime))) {
-                        continue;
-                    }
-                    Stop neighbor = connection.getTo();
+            for (Connection connection : current.getConnectionsFrom()) {
+//                if (connection.getDepartsAt().isLessThan(timeAtStop.getOrDefault(current, currentTime))) {
+//                    continue;
+//                }
+                Stop neighbor = connection.getTo();
 
-                    double gsc = gScore.getOrDefault(current, inf);
-                    double tentativeGScore;
-                    if (gsc == inf) {
-                        tentativeGScore = inf;
-                    } else {
-                        double weight = connection.getWeight(currentTime);
-                        tentativeGScore = gsc
-                                + weight;
-                    }
+                double gsc = gScore.getOrDefault(current, inf);
+                double tentativeGScore;
+                if (gsc == inf) {
+                    tentativeGScore = inf;
+                } else {
+                    double weight = connection.getWeight(timeAtStop.getOrDefault(current, currentTime));
 
-                    if (tentativeGScore <
-                            gScore.getOrDefault(neighbor, inf)) {
-                        cameFrom.put(neighbor, new CameFrom(current, connection));
-                        gScore.put(neighbor, tentativeGScore);
-                        fScore.put(neighbor, tentativeGScore + heuristic(neighbor, end));
-                        timeAtStop.put(neighbor, connection.getArrivesAt());
-                        if (!openSet.contains(neighbor)) {
-                            openSet.add(neighbor);
-                        }
-                    }
+                    tentativeGScore = gsc
+                            + weight;
                 }
 
+                if (tentativeGScore <
+                        gScore.getOrDefault(neighbor, inf)) {
+                    cameFrom.put(neighbor, new CameFrom(current, connection));
+                    gScore.put(neighbor, tentativeGScore);
+                    fScore.put(neighbor, tentativeGScore + heuristic(neighbor, end));
+                    timeAtStop.put(neighbor, connection.getArrivesAt());
+                    if (!openSet.contains(neighbor)) {
+                        openSet.add(neighbor);
+                    }
+                }
             }
         }
         throw new IllegalArgumentException("No path");
@@ -95,7 +92,7 @@ public class OptimisedWikiRunner implements AlgorithmRunner{
 
     private Double heuristic(Stop start, Stop end) {
         return Math.abs(distance(start.getLatitude(), start.getLongitude(),
-                end.getLatitude(), end.getLongitude()));
+                end.getLatitude(), end.getLongitude())) * 90000;
     }
 
     private double distance(double lat1, double lon1, double lat2, double lon2) {
